@@ -2,12 +2,15 @@
 # -*- coding: utf-8 -*-
 
 import jsonpickle
+
+from cloudshell.api.cloudshell_api import CloudShellAPISession
+
 from cloudshell.shell.core.resource_driver_interface import ResourceDriverInterface
 from cloudshell.shell.core.driver_context import InitCommandContext, AutoLoadAttribute, AutoLoadDetails
 
 from cloudshell.shell.core.driver_context import ApiVmDetails, ApiVmCustomParam
 
-from cloudshell.cp.vcenter.common.cloud_shell.driver_helper import CloudshellDriverHelper
+# from cloudshell.cp.vcenter.common.cloud_shell.driver_helper import CloudshellDriverHelper
 from cloudshell.cp.vcenter.commands.load_vm import VMLoader
 from cloudshell.cp.vcenter.common.vcenter.vmomi_service import pyVmomiService
 from pyVim.connect import SmartConnect, Disconnect
@@ -26,7 +29,7 @@ class BreakingPointVChassisShellDriver(ResourceDriverInterface):
     SHELL_NAME = "BP vChassis"
 
     def __init__(self):
-        self.cs_helper = CloudshellDriverHelper()
+        # self.cs_helper = CloudshellDriverHelper()
         self.model_parser = ResourceModelParser()
         self.ip_manager = VMIPManager()
         self.task_waiter = SynchronousTaskWaiter()
@@ -62,9 +65,13 @@ class BreakingPointVChassisShellDriver(ResourceDriverInterface):
 
         logger.info("Start AutoLoading VM_path: {0} on vcenter: {1}".format(vcenter_vm_name, vcenter_name))
 
-        session = self.cs_helper.get_session(context.connectivity.server_address,
-                                             context.connectivity.admin_auth_token,
-                                             self.DOMAIN)
+        # session = self.cs_helper.get_session(context.connectivity.server_address,
+        #                                      context.connectivity.admin_auth_token,
+        #                                      self.DOMAIN)
+
+        session = CloudShellAPISession(host=context.connectivity.server_address,
+                                       token_id=context.connectivity.admin_auth_token,
+                                       domain=self.DOMAIN)
 
         vcenter_api_res = session.GetResourceDetails(vcenter_name)
         vcenter_resource = self.model_parser.convert_to_vcenter_model(vcenter_api_res)
